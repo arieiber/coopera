@@ -59,5 +59,6 @@ export type Contribution = {
   display_name: string | null
   amount_crc: number
   tx_hash: string | null
+  is_demo: boolean
   created_at: string
 }

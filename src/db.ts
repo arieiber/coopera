@@ -172,7 +172,7 @@ export async function getContributions(vacaId: string): Promise<Contribution[]> 
 }
 
 // Returns the actual amount contributed (may be capped)
-export async function addContribution(vacaId: string, memberEmail: string, displayName: string, amountCrc: number, txHash?: string): Promise<number> {
+export async function addContribution(vacaId: string, memberEmail: string, displayName: string, amountCrc: number, txHash?: string, isDemo = false): Promise<number> {
   const { data: vaca } = await supabase
     .from('vacas')
     .select('collected_crc, target_crc, overflow_policy, status')
@@ -191,7 +191,7 @@ export async function addContribution(vacaId: string, memberEmail: string, displ
 
   const { error: contribError } = await supabase
     .from('contributions')
-    .insert({ vaca_id: vacaId, member_email: memberEmail, display_name: displayName, amount_crc: actual, tx_hash: txHash ?? null })
+    .insert({ vaca_id: vacaId, member_email: memberEmail, display_name: displayName, amount_crc: actual, tx_hash: txHash ?? null, is_demo: isDemo })
   if (contribError) throw new Error(contribError.message)
 
   const newTotal = vaca.collected_crc + actual

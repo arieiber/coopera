@@ -117,7 +117,7 @@ export function SalaScreen({ sala, schoolName, session, crcBalance, wallet, onOp
       const sinkIsWallet = sink && /^0x[0-9a-fA-F]{40}$/.test(sink)
       if (!demoMode && wallet && sinkIsWallet) await sendCrc(wallet, sink, crc)
       track('vaca_contributed', { sala_id: sala.id, amount: crc })
-      const actual = await dbAddContribution(activeVaca.id, session.email, session.displayName, crc)
+      const actual = await dbAddContribution(activeVaca.id, session.email, session.displayName, crc, undefined, demoMode)
       setAmount('')
       setJustSent(true)
       setTimeout(() => setJustSent(false), 2000)
@@ -390,9 +390,12 @@ export function SalaScreen({ sala, schoolName, session, crcBalance, wallet, onOp
                       <div className="w-7 h-7 rounded-full bg-violet-100 flex items-center justify-center text-violet-700 font-bold text-xs shrink-0">
                         {(c.display_name ?? c.member_email)[0].toUpperCase()}
                       </div>
-                      <span className="text-gray-700">{c.display_name ?? c.member_email}</span>
+                      <div>
+                        <span className="text-gray-700">{c.display_name ?? c.member_email}</span>
+                        {c.is_demo && <span className="ml-1.5 text-xs text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-full">demo</span>}
+                      </div>
                     </div>
-                    <span className="font-semibold text-gray-900">{c.amount_crc} CRC</span>
+                    <span className="font-semibold text-gray-900">{c.amount_crc} {t('créditos')}</span>
                   </div>
                 ))}
               </div>
