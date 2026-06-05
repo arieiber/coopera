@@ -403,6 +403,11 @@ export function SalaScreen({ sala, schoolName, session, crcBalance, wallet, onOp
         {/* Contribute input */}
         {isActive && (
           <div className="p-4 bg-white border-t border-gray-100 space-y-2">
+            {!demoMode && !sala.payout_address && (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-xl px-3 py-2.5 text-xs text-yellow-800">
+                ⚠️ La madrina todavía no configuró dónde recibir los fondos. Tus créditos quedarán registrados pero no se enviarán hasta que lo haga.
+              </div>
+            )}
             {error && <p className="text-sm text-orange-500">{error}</p>}
             {perFamilyForVaca(activeVaca) && (
               <button
@@ -460,7 +465,11 @@ export function SalaScreen({ sala, schoolName, session, crcBalance, wallet, onOp
                 👥 Miembros
               </button>
             )}
-            <button onClick={onChangeSala} className="text-xs text-gray-400 hover:text-gray-600 px-1" title="Cambiar sala">🏫</button>
+            <button onClick={onChangeSala}
+              className="text-xs text-gray-400 hover:text-gray-700 px-2 py-1.5 rounded-full border border-gray-200 hover:bg-gray-50 transition-colors"
+              title="Cambiar sala">
+              🏫 Cambiar sala
+            </button>
             <button onClick={onOpenSettings} className="text-lg text-gray-400 hover:text-gray-600 px-1" title="Configuración">⚙️</button>
           </div>
         </div>
@@ -483,6 +492,38 @@ export function SalaScreen({ sala, schoolName, session, crcBalance, wallet, onOp
           )}
         </div>
       </div>
+
+      {/* Demo mode banner — shown when outside Circles Playground */}
+      {demoMode && (
+        <div className="bg-amber-50 border-b border-amber-200 px-4 py-2.5 flex items-start gap-2">
+          <span className="text-lg leading-none mt-0.5">🔬</span>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-semibold text-amber-800">Modo demostración</p>
+            <p className="text-xs text-amber-700 leading-snug">
+              Las contribuciones son de prueba — no son transacciones reales.
+              Para contribuir de verdad, abrí la app desde{' '}
+              <a href="https://circles.gnosis.io/playground" target="_blank" rel="noreferrer"
+                className="underline font-medium">Circles Playground</a>.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Madrina sin cuenta de cobro — vacas visibles pero contribución bloqueada */}
+      {!sala.payout_address && !isMadrina && (
+        <div className="bg-yellow-50 border-b border-yellow-200 px-4 py-2.5 flex items-center gap-2">
+          <span>⚠️</span>
+          <p className="text-xs text-yellow-800">
+            La madrina aún no configuró una cuenta de cobro. Las contribuciones quedan registradas pero no se envían hasta que lo haga.
+          </p>
+        </div>
+      )}
+      {!sala.payout_address && isMadrina && (
+        <div className="bg-yellow-50 border-b border-yellow-200 px-4 py-2.5 flex items-center justify-between gap-2">
+          <p className="text-xs text-yellow-800 font-medium">⚠️ Configurá una cuenta de cobro para que las vacas sean efectivas.</p>
+          <button onClick={onOpenMembers} className="text-xs font-semibold text-yellow-900 underline shrink-0">Configurar →</button>
+        </div>
+      )}
 
       <div className="flex-1 p-4 space-y-3 overflow-y-auto">
         {loading ? (

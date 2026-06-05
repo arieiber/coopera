@@ -126,6 +126,21 @@ export function MembersScreen({ sala, inviteUrl, madrinalWallet, onBack, onSalaU
               Podés usar tu {t('cuenta digital')}, un nombre de pago propio, o la dirección de tu cuenta.
             </p>
           </div>
+          {/* Auto-fill with Circles wallet if available */}
+          {madrinalWallet && !sala.payout_address && (
+            <button
+              onClick={() => setPayoutInput(madrinalWallet)}
+              className="w-full flex items-center gap-2 bg-violet-50 border border-violet-200 rounded-xl px-3 py-2.5 text-left hover:bg-violet-100 transition-colors"
+            >
+              <span className="text-lg">🔗</span>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold text-violet-800">Usar mi wallet de Circles</p>
+                <p className="text-xs font-mono text-violet-600 truncate">{madrinalWallet.slice(0, 10)}…{madrinalWallet.slice(-6)}</p>
+              </div>
+              <span className="text-xs text-violet-600 font-medium shrink-0">Un click →</span>
+            </button>
+          )}
+
           <input
             type="text"
             placeholder="nombre.eth · dirección de cuenta · gno:..."
