@@ -28,13 +28,13 @@ export function JoinScreen({ sala, schoolName, isCreator = false, circlesWallet,
   // Auto-join or pre-fill when Circles identity is available
   useEffect(() => {
     if (!circlesMode || !circlesEmail) return
-    // Check if already a member
     getMember(sala.id, circlesEmail).then(existing => {
-      if (existing?.status === 'approved') {
-        setIsReturning(true)
-      }
+      if (existing?.status === 'approved') setIsReturning(true)
+      // Pre-fill name: saved DB name > Circles profile name
+      const savedName = existing?.display_name
+      if (savedName) setDisplayName(savedName)
+      else if (circlesName) setDisplayName(circlesName)
     })
-    if (circlesName) setDisplayName(circlesName)
   }, [circlesMode, circlesEmail, circlesName, sala.id])
 
   async function handleJoinCircles() {
