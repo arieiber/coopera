@@ -113,7 +113,9 @@ export function SalaScreen({ sala, schoolName, session, crcBalance, wallet, onOp
     }
     setSending(true); setError('')
     try {
-      if (!demoMode && wallet) await sendCrc(wallet, sala.payout_address ?? activeVaca.created_by_email, crc)
+      const sink = sala.payout_address
+      const sinkIsWallet = sink && /^0x[0-9a-fA-F]{40}$/.test(sink)
+      if (!demoMode && wallet && sinkIsWallet) await sendCrc(wallet, sink, crc)
       track('vaca_contributed', { sala_id: sala.id, amount: crc })
       const actual = await dbAddContribution(activeVaca.id, session.email, session.displayName, crc)
       setAmount('')
