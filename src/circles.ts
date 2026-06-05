@@ -33,19 +33,27 @@ export async function getCirclesProfile(address: string): Promise<{ name: string
 
 /** Returns the total CRC balance for an address, in CRC units.
  *
- * NOTE: circles_getTotalBalance only counts native ERC1155 tokens.
- * Many users hold ERC20-wrapped CRC (received via transfers) which that API misses.
- * We sum getTokenBalances() instead to capture all token types.
+ * Calls the Circles RPC directly — the SDK's getTotal() only counts ERC1155
+ * native tokens and misses ERC20-wrapped CRC received via trust-graph transfers.
+ * circles_getTokenBalances returns all token types with their attoCircles value.
  */
 export async function getCrcBalance(address: string): Promise<number> {
   try {
-    const avatar = await sdk.getAvatar(address as `0x${string}`)
-    const tokens = await avatar.balances.getTokenBalances()
-    // Sum all token balances (ERC1155 + ERC20 wrappers) in atto-circles → CRC
-    const totalAtto = tokens.reduce((sum, t) => sum + t.balance, 0n)
-    const crc = Number(totalAtto) / 1e18
-    console.log('[circles] balance:', crc, 'CRC across', tokens.length, 'tokens')
-    return crc
+    const res = await fetch('https://rpc.aboutcircles.com/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        jsonrpc: '2.0',
+        method: 'circles_getTokenBalances',
+        params: [address],
+        id: 1,
+      }),
+    })
+    const json = await res.json()
+    if (!json.result || !Array.isArray(json.result)) return 0
+    const tokens: Array<{ attoCircles: string }> = json.result
+    const totalAtto = tokens.reduce((sum, t) => sum + BigInt(t.attoCircles ?? '0'), 0n)
+    return Number(totalAtto) / 1e18
   } catch (e) {
     console.error('[circles] getCrcBalance error:', e)
     return 0
