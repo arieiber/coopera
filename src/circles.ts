@@ -31,15 +31,21 @@ export async function getCirclesProfile(address: string): Promise<{ name: string
   }
 }
 
-/** Returns the total CRC balance for an address, in CRC units. */
+/** Returns the total CRC balance for an address, in CRC units.
+ *
+ * NOTE: circles_getTotalBalance only counts native ERC1155 tokens.
+ * Many users hold ERC20-wrapped CRC (received via transfers) which that API misses.
+ * We sum getTokenBalances() instead to capture all token types.
+ */
 export async function getCrcBalance(address: string): Promise<number> {
   try {
-    console.log('[circles] getCrcBalance for', address)
     const avatar = await sdk.getAvatar(address as `0x${string}`)
-    console.log('[circles] avatar found:', avatar)
-    const totalWei = await avatar.balances.getTotal()
-    console.log('[circles] totalWei (bigint):', totalWei, '→', Number(totalWei) / 1e18, 'CRC')
-    return Number(totalWei) / 1e18
+    const tokens = await avatar.balances.getTokenBalances()
+    // Sum all token balances (ERC1155 + ERC20 wrappers) in atto-circles → CRC
+    const totalAtto = tokens.reduce((sum, t) => sum + t.balance, 0n)
+    const crc = Number(totalAtto) / 1e18
+    console.log('[circles] balance:', crc, 'CRC across', tokens.length, 'tokens')
+    return crc
   } catch (e) {
     console.error('[circles] getCrcBalance error:', e)
     return 0
