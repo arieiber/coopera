@@ -34,10 +34,14 @@ export async function getCirclesProfile(address: string): Promise<{ name: string
 /** Returns the total CRC balance for an address, in CRC units. */
 export async function getCrcBalance(address: string): Promise<number> {
   try {
+    console.log('[circles] getCrcBalance for', address)
     const avatar = await sdk.getAvatar(address as `0x${string}`)
+    console.log('[circles] avatar found:', avatar)
     const totalWei = await avatar.balances.getTotal()
+    console.log('[circles] totalWei (bigint):', totalWei, '→', Number(totalWei) / 1e18, 'CRC')
     return Number(totalWei) / 1e18
-  } catch {
+  } catch (e) {
+    console.error('[circles] getCrcBalance error:', e)
     return 0
   }
 }

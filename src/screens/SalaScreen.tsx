@@ -106,6 +106,11 @@ export function SalaScreen({ sala, schoolName, session, crcBalance, wallet, onOp
   async function handleContribute() {
     if (!activeVaca || !amount) return
     const crc = parseFloat(amount)
+    // In Circles Garage: check real balance before attempting tx
+    if (!demoMode && crcBalance !== null && crc > crcBalance) {
+      setError(`No tenés suficientes ${t('créditos')}. Tu saldo es ${Math.floor(crcBalance)}.`)
+      return
+    }
     setSending(true); setError('')
     try {
       if (!demoMode && wallet) await sendCrc(wallet, sala.payout_address ?? activeVaca.created_by_email, crc)
