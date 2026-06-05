@@ -20,6 +20,8 @@ export function VacaDetail({ vaca, salaId, walletAddress, onBack, onUpdated }: P
 
   const demoMode = !isMiniappMode()
 
+  const toIsWallet = /^0x[0-9a-fA-F]{40}$/.test(vaca.createdBy)
+
   async function handleContribute() {
     const crc = parseFloat(amount)
     if (!crc || crc <= 0) return
@@ -27,7 +29,7 @@ export function VacaDetail({ vaca, salaId, walletAddress, onBack, onUpdated }: P
     setSending(true)
     setError('')
     try {
-      if (!demoMode) {
+      if (!demoMode && toIsWallet) {
         if (!walletAddress) { setError('Conectá tu billetera primero'); setSending(false); return }
         await sendCrc(walletAddress!, vaca.createdBy, crc)
       }
@@ -93,6 +95,11 @@ export function VacaDetail({ vaca, salaId, walletAddress, onBack, onUpdated }: P
       </div>
 
       <div className="p-4 border-t border-gray-100 space-y-3">
+        {!demoMode && !toIsWallet && (
+          <p className="text-xs text-amber-600 bg-amber-50 rounded-xl px-3 py-2">
+            💡 La madrina aún no tiene wallet de Circles. Tu contribución queda registrada, pero sin transacción en la red.
+          </p>
+        )}
         {error && <p className="text-sm text-red-500">{error}</p>}
         <div className="flex gap-2">
           <input

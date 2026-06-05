@@ -4,7 +4,7 @@ import { trustMember, isMiniappMode } from '../circles'
 import type { Member, Sala } from '../supabase'
 import { WalletCreator } from '../components/WalletCreator'
 import { resolveEns, isEns, generateSubname } from '../ens'
-import { useTerm } from '../prefs'
+import { useTerm, usePrefs } from '../prefs'
 
 interface Props {
   sala: Sala
@@ -16,6 +16,7 @@ interface Props {
 
 export function MembersScreen({ sala, inviteUrl, madrinalWallet, onBack, onSalaUpdated }: Props) {
   const t = useTerm()
+  const { techMode } = usePrefs()
   const [members, setMembers] = useState<Member[]>([])
   const [copied, setCopied] = useState(false)
   const [payoutInput, setPayoutInput] = useState(sala.payout_address ?? '')
@@ -196,7 +197,7 @@ export function MembersScreen({ sala, inviteUrl, madrinalWallet, onBack, onSalaU
         {/* ENS subdomain preview */}
         <div className="bg-gray-50 border border-gray-200 rounded-2xl p-4 space-y-2">
           <div className="flex items-center justify-between">
-            <p className="text-sm font-semibold text-gray-700">🌐 ENS de la sala</p>
+            <p className="text-sm font-semibold text-gray-700">🌐 {techMode ? 'ENS de la sala' : 'Dirección web de la sala'}</p>
             <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium">Próximamente</span>
           </div>
           <div className="bg-white border border-gray-200 rounded-xl px-3 py-2.5">

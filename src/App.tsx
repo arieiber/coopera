@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { subscribeWallet, getCrcBalance } from './circles'
+import { subscribeWallet, getCrcBalance, getCirclesProfile } from './circles'
 import { identifyWallet, track } from './analytics'
 import { getSession, saveSession, clearSession } from './session'
 import type { Session } from './session'
@@ -31,15 +31,18 @@ export default function App() {
   const [view, setView] = useState<View>('home')
   const [wallet, setWallet] = useState<string | null>(null)
   const [crcBalance, setCrcBalance] = useState<number | null>(null)
+  const [circlesName, setCirclesName] = useState<string | null>(null)
 
   useEffect(() => {
     const unsub = subscribeWallet(addr => {
       setWallet(addr)
       if (addr) {
         getCrcBalance(addr).then(setCrcBalance)
+        getCirclesProfile(addr).then(p => setCirclesName(p?.name ?? null))
         identifyWallet(addr)
       } else {
         setCrcBalance(null)
+        setCirclesName(null)
       }
     })
     return unsub
@@ -92,6 +95,16 @@ export default function App() {
     setView('home')
   }
 
+  // Leave current sala and go find another — keeps wallet/auth, clears sala only
+  function handleChangeSala() {
+    clearSession()
+    setSession(null)
+    setActiveSala(null)
+    setPendingSala(null)
+    setIsCreator(false)
+    setView('home')
+  }
+
   // Onboarding — first-time visitors only
   if (!onboarded) {
     return (
@@ -110,6 +123,8 @@ export default function App() {
         sala={pendingSala}
         schoolName={activeSchool?.name ?? ''}
         isCreator={isCreator}
+        circlesWallet={wallet}
+        circlesName={circlesName}
         onJoined={handleJoined}
         onBack={() => setView('home')}
       />
@@ -158,6 +173,7 @@ export default function App() {
         wallet={wallet}
         onOpenMembers={() => setView('members')}
         onOpenSettings={() => setView('settings')}
+        onChangeSala={handleChangeSala}
       />
     )
   }

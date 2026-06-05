@@ -19,6 +19,18 @@ const publicClient = createPublicClient({
 // ── Read-only SDK (no runner needed for balance/trust queries) ────────────────
 const sdk = new Sdk()
 
+/** Returns the Circles profile name for an address, or null if not found. */
+export async function getCirclesProfile(address: string): Promise<{ name: string } | null> {
+  try {
+    const avatar = await sdk.getAvatar(address as `0x${string}`)
+    const profile = await avatar.profile.get()
+    if (profile?.name) return { name: profile.name }
+    return null
+  } catch {
+    return null
+  }
+}
+
 /** Returns the total CRC balance for an address, in CRC units. */
 export async function getCrcBalance(address: string): Promise<number> {
   try {
@@ -88,5 +100,7 @@ export async function sendCrc(
   const sdkWithRunner = new Sdk(undefined, runner)
   const avatar = await sdkWithRunner.getAvatar(fromAddress as `0x${string}`)
   // transfer.advanced uses pathfinding through the trust graph — real Circles primitive
-  await avatar.transfer.advanced(to as `0x${string}`, amountCrc)
+  // Convert to BigInt wei (18 decimals) to avoid "cannot convert float to BigInt" error
+  const amountWei = BigInt(Math.round(amountCrc * 1e18))
+  await avatar.transfer.advanced(to as `0x${string}`, amountWei)
 }

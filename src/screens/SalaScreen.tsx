@@ -14,6 +14,7 @@ interface Props {
   wallet: string | null
   onOpenMembers: () => void
   onOpenSettings: () => void
+  onChangeSala: () => void
 }
 
 type View = 'list' | 'vaca-detail' | 'new-vaca'
@@ -24,7 +25,7 @@ const OVERFLOW_OPTIONS: { value: OverflowPolicy; label: string; desc: string }[]
   { value: 'rollover', label: 'Guardar para la próxima colecta', desc: 'Lo que sobre queda guardado para usarlo en la siguiente colecta' },
 ]
 
-export function SalaScreen({ sala, schoolName, session, crcBalance, wallet, onOpenMembers, onOpenSettings }: Props) {
+export function SalaScreen({ sala, schoolName, session, crcBalance, wallet, onOpenMembers, onOpenSettings, onChangeSala }: Props) {
   const t = useTerm()
   const { techMode } = usePrefs()
   const [vacas, setVacas] = useState<Vaca[]>([])
@@ -204,8 +205,17 @@ export function SalaScreen({ sala, schoolName, session, crcBalance, wallet, onOp
           </div>
         </div>
       </div>
-      <div className="p-4 bg-white border-t border-gray-100">
-        <button onClick={handleCreateVaca} disabled={!title.trim() || !target || !deadline}
+      <div className="p-4 bg-white border-t border-gray-100 space-y-2">
+        {!sala.payout_address && (
+          <div className="bg-amber-50 border border-amber-200 rounded-xl px-3 py-2.5 text-xs text-amber-700 font-medium">
+            ⚠️ Necesitás configurar una cuenta de cobro antes de publicar una vaca. Los papás necesitan saber adónde van sus créditos.
+            <button onClick={() => { setView('list'); onOpenMembers() }}
+              className="block mt-1 text-amber-800 underline font-semibold">
+              Configurar cuenta →
+            </button>
+          </div>
+        )}
+        <button onClick={handleCreateVaca} disabled={!title.trim() || !target || !deadline || !sala.payout_address}
           className="w-full bg-violet-600 text-white py-3 rounded-xl font-semibold disabled:opacity-50 hover:bg-violet-700 transition-colors">
           Crear vaca 🐄
         </button>
@@ -443,6 +453,7 @@ export function SalaScreen({ sala, schoolName, session, crcBalance, wallet, onOp
                 👥 Miembros
               </button>
             )}
+            <button onClick={onChangeSala} className="text-xs text-gray-400 hover:text-gray-600 px-1" title="Cambiar sala">🏫</button>
             <button onClick={onOpenSettings} className="text-lg text-gray-400 hover:text-gray-600 px-1" title="Configuración">⚙️</button>
           </div>
         </div>
