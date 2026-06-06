@@ -209,6 +209,37 @@ export function MembersScreen({ sala, inviteUrl, madrinalWallet, onBack, onSalaU
           </div>
         </div>
 
+        {/* Arcas de la sala — Circles Group vision card */}
+        <div className="bg-gradient-to-br from-violet-50 to-amber-50 border border-violet-200 rounded-2xl p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-xl">🏦</span>
+              <p className="text-sm font-bold text-gray-800">Arcas de la sala</p>
+            </div>
+            <span className="text-xs bg-violet-100 text-violet-700 px-2 py-0.5 rounded-full font-medium">En desarrollo</span>
+          </div>
+          <p className="text-xs text-gray-600 leading-relaxed">
+            Cada sala tendrá su propia billetera colectiva — separada de la wallet de quien coordina. Los fondos son de todos, y la madrina puede retirarlos cuando se completa una colecta.
+          </p>
+          <div className="bg-white/70 rounded-xl p-3 space-y-2">
+            <div className="flex items-center gap-2 text-xs text-gray-500">
+              <span className="w-5 h-5 rounded-full bg-violet-100 flex items-center justify-center text-violet-600 font-bold text-xs shrink-0">✓</span>
+              <span>Cualquier miembro puede contribuir, incluso la madrina</span>
+            </div>
+            <div className="flex items-center gap-2 text-xs text-gray-500">
+              <span className="w-5 h-5 rounded-full bg-violet-100 flex items-center justify-center text-violet-600 font-bold text-xs shrink-0">✓</span>
+              <span>Los fondos quedan en la sala hasta que se vote retirarlos</span>
+            </div>
+            <div className="flex items-center gap-2 text-xs text-gray-500">
+              <span className="w-5 h-5 rounded-full bg-violet-100 flex items-center justify-center text-violet-600 font-bold text-xs shrink-0">✓</span>
+              <span>Historial transparente: quién puso qué, cuándo y para qué</span>
+            </div>
+          </div>
+          <p className="text-xs text-violet-600 font-medium">
+            Basado en {techMode ? 'Circles Groups — primitiva nativa del protocolo' : 'grupos de confianza del protocolo Circles'} 🔗
+          </p>
+        </div>
+
         {/* ENS subdomain preview */}
         <div className="bg-gray-50 border border-gray-200 rounded-2xl p-4 space-y-2">
           <div className="flex items-center justify-between">
