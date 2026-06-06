@@ -4,6 +4,7 @@ import { identifyWallet, track } from './analytics'
 import { getSession, saveSession, clearSession } from './session'
 import type { Session } from './session'
 import { getSalasBySchool, createSala as dbCreateSala, getMember, updateMemberWallet, getMembers } from './db'
+import { signInvite } from './lib/inviteJwt'
 import { supabase } from './supabase'
 import type { School, Sala } from './supabase'
 import { HomeScreen } from './screens/HomeScreen'
@@ -186,11 +187,21 @@ export default function App() {
   }
 
   if (view === 'members' && activeSala) {
-    const inviteUrl = `${window.location.origin}/api/invite?token=${activeSala.invite_token}&sala=${encodeURIComponent(activeSala.name)}&school=${encodeURIComponent(activeSchool?.name ?? '')}&from=${encodeURIComponent(session?.displayName ?? '')}`
+    // Build JWT invite URL async — start with a placeholder, update once signed
+    const buildInviteUrl = async () => {
+      const jwt = await signInvite({
+        token: activeSala.invite_token,
+        sala: activeSala.name,
+        school: activeSchool?.name ?? '',
+        from: session?.displayName ?? '',
+      })
+      return `${window.location.origin}/api/invite?t=${jwt}`
+    }
+    // Pass as a promise-returning function so MembersScreen can resolve it on copy
     return (
       <MembersScreen
         sala={activeSala}
-        inviteUrl={inviteUrl}
+        buildInviteUrl={buildInviteUrl}
         madrinalWallet={wallet}
         crcBalance={crcBalance}
         onBack={() => setView('sala')}

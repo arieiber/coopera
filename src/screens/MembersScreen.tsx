@@ -9,14 +9,14 @@ import { useTerm, usePrefs } from '../prefs'
 
 interface Props {
   sala: Sala
-  inviteUrl: string
+  buildInviteUrl: () => Promise<string>
   madrinalWallet: string | null
   crcBalance: number | null
   onBack: () => void
   onSalaUpdated: (updated: Sala) => void
 }
 
-export function MembersScreen({ sala, inviteUrl, madrinalWallet, crcBalance, onBack, onSalaUpdated }: Props) {
+export function MembersScreen({ sala, buildInviteUrl, madrinalWallet, crcBalance, onBack, onSalaUpdated }: Props) {
   const t = useTerm()
   const { techMode } = usePrefs()
   const [members, setMembers] = useState<Member[]>([])
@@ -102,8 +102,9 @@ export function MembersScreen({ sala, inviteUrl, madrinalWallet, crcBalance, onB
     }
   }
 
-  function copyInvite() {
-    navigator.clipboard.writeText(inviteUrl)
+  async function copyInvite() {
+    const url = await buildInviteUrl()
+    navigator.clipboard.writeText(url)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -272,7 +273,7 @@ export function MembersScreen({ sala, inviteUrl, madrinalWallet, crcBalance, onB
         {/* Invite link */}
         <div className="bg-violet-50 border border-violet-200 rounded-2xl p-4 space-y-2">
           <p className="text-sm font-semibold text-violet-800">Link de invitación</p>
-          <p className="text-xs text-gray-500 break-all">{inviteUrl}</p>
+          <p className="text-xs text-gray-400 font-mono">coopera-crc.vercel.app/api/invite?t=•••</p>
           <button
             onClick={copyInvite}
             className="w-full bg-violet-600 text-white py-2 rounded-xl text-sm font-semibold hover:bg-violet-700 transition-colors"

@@ -1,20 +1,51 @@
 /**
- * /api/invite?token=XXX&sala=NAME&school=SCHOOL
+ * /api/invite?t=JWT
+ *
+ * JWT payload (signed HS256): { tok, s, sc, f }
+ *   tok = invite_token (UUID)
+ *   s   = sala name
+ *   sc  = school name
+ *   f   = from (madrina display name)
+ *
+ * Also supports legacy plaintext params for backwards compatibility:
+ *   ?token=UUID&sala=NAME&school=NAME&from=NAME
  *
  * For WhatsApp/social crawlers: serves HTML with dynamic OG tags
- * For humans: redirects to the SPA with ?invite=TOKEN
- *
- * WhatsApp, Telegram, iMessage, Slack all send a bot UA to scrape OG tags
- * before showing the link preview. This edge function serves them the right meta.
+ * For humans: redirects to /?invite=TOKEN
  */
+import { jwtVerify } from 'jose'
+
 export const config = { runtime: 'edge' }
 
-export default function handler(req) {
+function getSecret() {
+  const raw = process.env.INVITE_JWT_SECRET ?? 'dev-secret-change-me'
+  return new TextEncoder().encode(raw)
+}
+
+export default async function handler(req) {
   const { searchParams } = new URL(req.url)
-  const token = searchParams.get('token') ?? ''
-  const sala = searchParams.get('sala') ?? 'una sala'
-  const school = searchParams.get('school') ?? ''
-  const from = searchParams.get('from') ?? ''
+
+  let token = '', sala = 'una sala', school = '', from = ''
+
+  const jwtParam = searchParams.get('t')
+  if (jwtParam) {
+    try {
+      const { payload } = await jwtVerify(jwtParam, getSecret())
+      token  = payload.tok ?? ''
+      sala   = payload.s   ?? 'una sala'
+      school = payload.sc  ?? ''
+      from   = payload.f   ?? ''
+    } catch {
+      // Invalid/expired JWT — still redirect, just without metadata
+      token = jwtParam // fallback: treat as raw token
+    }
+  } else {
+    // Legacy plaintext params (backwards compat)
+    token  = searchParams.get('token') ?? ''
+    sala   = searchParams.get('sala')  ?? 'una sala'
+    school = searchParams.get('school') ?? ''
+    from   = searchParams.get('from')  ?? ''
+  }
 
   const ua = req.headers.get('user-agent') ?? ''
   const isBot = /whatsapp|telegram|slack|twitter|facebook|linkedIn|bot|crawler|spider|preview/i.test(ua)
@@ -27,11 +58,9 @@ export default function handler(req) {
     : 'Coopera — colectas escolares sin drama, sin WhatsApp, sin comprobantes.'
 
   if (!isBot) {
-    // Human: redirect straight to the SPA
     return Response.redirect(appUrl, 302)
   }
 
-  // Bot/crawler: serve a minimal HTML page with the right OG tags
   const html = `<!doctype html>
 <html lang="es">
 <head>
