@@ -54,7 +54,8 @@ export function SalaScreen({ sala, schoolName, session, crcBalance, wallet, onOp
   const [showCloseConfirm, setShowCloseConfirm] = useState(false)
   const [deletingVacaId, setDeletingVacaId] = useState<string | null>(null)
 
-  const demoMode = !isMiniappMode()
+  // demoMode = no Circles environment OR no wallet injected (e.g. email user inside Playground)
+  const demoMode = !isMiniappMode() || !wallet
   const isMadrina = session.role === 'madrina'
   const inviteUrl = `${window.location.origin}/api/invite?token=${sala.invite_token}&sala=${encodeURIComponent(sala.name)}&school=${encodeURIComponent(schoolName)}`
 
@@ -489,9 +490,23 @@ export function SalaScreen({ sala, schoolName, session, crcBalance, wallet, onOp
           </div>
         </div>
         <div className="flex items-center justify-between mt-1">
-          <p className="text-xs text-gray-500">
-            {isMadrina ? '⭐ Madrina' : `👤 ${session.displayName}`}
-          </p>
+          <div className="flex items-center gap-1.5">
+            <p className="text-xs text-gray-500">
+              {isMadrina ? '⭐ Madrina' : `👤 ${session.displayName}`}
+            </p>
+            {/* Demo badge — shown when no Circles wallet */}
+            {demoMode && (
+              <a
+                href="https://circles.garden"
+                target="_blank"
+                rel="noreferrer"
+                className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium hover:bg-amber-200 transition-colors"
+                title="Tus contribuciones son de prueba. Tocá para crear una cuenta real de Circles."
+              >
+                demo · activar cuenta →
+              </a>
+            )}
+          </div>
           {wallet && (
             <div className="flex items-center gap-1.5">
               <div className="w-1.5 h-1.5 rounded-full bg-green-400" />
