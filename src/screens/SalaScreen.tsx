@@ -56,7 +56,7 @@ export function SalaScreen({ sala, schoolName, session, crcBalance, wallet, onOp
 
   const demoMode = !isMiniappMode()
   const isMadrina = session.role === 'madrina'
-  const inviteUrl = `${window.location.origin}${window.location.pathname}?invite=${sala.invite_token}`
+  const inviteUrl = `${window.location.origin}/api/invite?token=${sala.invite_token}&sala=${encodeURIComponent(sala.name)}&school=${encodeURIComponent(schoolName)}`
 
   async function loadVacas() {
     setLoading(true)
