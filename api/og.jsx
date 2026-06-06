@@ -5,7 +5,7 @@ export const config = { runtime: 'edge' }
 export default function handler(req) {
   const { searchParams } = new URL(req.url)
   const sala = searchParams.get('sala') || 'Tu sala'
-  const school = searchParams.get('school') || 'Coopera'
+  const school = searchParams.get('school') || ''
 
   return new ImageResponse(
     (
@@ -15,74 +15,58 @@ export default function handler(req) {
           height: '630px',
           display: 'flex',
           flexDirection: 'column',
-          background: 'linear-gradient(135deg, #1a1a1a 0%, #2d1f00 60%, #1a1a1a 100%)',
-          padding: '60px',
-          fontFamily: 'sans-serif',
-          position: 'relative',
+          backgroundColor: '#1a1200',
+          padding: '64px',
         }}
       >
-        {/* Background decorative circles */}
-        <div style={{
-          position: 'absolute', top: '-80px', right: '-80px',
-          width: '400px', height: '400px', borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(245,166,35,0.15) 0%, transparent 70%)',
-          display: 'flex',
-        }} />
-        <div style={{
-          position: 'absolute', bottom: '-60px', left: '30%',
-          width: '300px', height: '300px', borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(245,166,35,0.08) 0%, transparent 70%)',
-          display: 'flex',
-        }} />
+        {/* Top accent bar */}
+        <div style={{ display: 'flex', width: '80px', height: '6px', backgroundColor: '#F5A623', borderRadius: '3px', marginBottom: '48px' }} />
 
-        {/* Logo + brand */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '48px' }}>
+        {/* Logo row */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '40px' }}>
           <div style={{
-            width: '56px', height: '56px', borderRadius: '50%',
-            background: '#F5A623',
+            width: '52px', height: '52px', borderRadius: '50%',
+            backgroundColor: '#F5A623',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '28px',
-          }}>🐄</div>
-          <span style={{ color: '#F5A623', fontSize: '28px', fontWeight: 700, letterSpacing: '-0.5px' }}>
+            fontSize: '26px',
+          }}>
+            🐄
+          </div>
+          <span style={{ color: '#F5A623', fontSize: '30px', fontWeight: 700 }}>
             Coopera
           </span>
         </div>
 
-        {/* Main message */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', flex: 1 }}>
-          <div style={{ color: '#9ca3af', fontSize: '22px', fontWeight: 400 }}>
-            Te invitaron a unirte a
-          </div>
-          <div style={{
-            color: '#ffffff', fontSize: '64px', fontWeight: 800,
-            lineHeight: 1.1, letterSpacing: '-2px',
-          }}>
-            {sala}
-          </div>
-          <div style={{ color: '#F5A623', fontSize: '26px', fontWeight: 500, marginTop: '4px' }}>
-            {school}
-          </div>
+        {/* Invite label */}
+        <div style={{ display: 'flex', color: '#9ca3af', fontSize: '24px', marginBottom: '16px' }}>
+          Te invitaron a unirte a
         </div>
 
-        {/* Bottom row */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '40px' }}>
-          <div style={{ display: 'flex', gap: '24px' }}>
-            {['Sin mensajitos', 'Sin comprobantes', 'Sin confusión'].map((item) => (
-              <div key={item} style={{
-                display: 'flex', alignItems: 'center', gap: '8px',
-                color: '#6b7280', fontSize: '16px',
-              }}>
-                <span style={{ color: '#F5A623' }}>✓</span>
-                {item}
-              </div>
-            ))}
+        {/* Sala name */}
+        <div style={{ display: 'flex', color: '#ffffff', fontSize: '72px', fontWeight: 800, lineHeight: 1, marginBottom: '16px' }}>
+          {sala}
+        </div>
+
+        {/* School name */}
+        {school ? (
+          <div style={{ display: 'flex', color: '#F5A623', fontSize: '28px', fontWeight: 500 }}>
+            {school}
           </div>
-          <div style={{
-            background: '#F5A623', color: '#1a1a1a',
-            padding: '12px 28px', borderRadius: '100px',
-            fontSize: '18px', fontWeight: 700,
-          }}>
-            Unirme →
+        ) : null}
+
+        {/* Bottom badges */}
+        <div style={{ display: 'flex', marginTop: 'auto', gap: '32px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#6b7280', fontSize: '18px' }}>
+            <span style={{ color: '#F5A623', fontSize: '20px' }}>✓</span>
+            Sin mensajitos
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#6b7280', fontSize: '18px' }}>
+            <span style={{ color: '#F5A623', fontSize: '20px' }}>✓</span>
+            Sin comprobantes
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#6b7280', fontSize: '18px' }}>
+            <span style={{ color: '#F5A623', fontSize: '20px' }}>✓</span>
+            Sin confusión
           </div>
         </div>
       </div>
