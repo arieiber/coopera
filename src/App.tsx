@@ -172,7 +172,7 @@ export default function App() {
   }
 
   if (view === 'members' && activeSala) {
-    const inviteUrl = `${window.location.origin}/api/invite?token=${activeSala.invite_token}&sala=${encodeURIComponent(activeSala.name)}&school=${encodeURIComponent(activeSchool?.name ?? '')}`
+    const inviteUrl = `${window.location.origin}/api/invite?token=${activeSala.invite_token}&sala=${encodeURIComponent(activeSala.name)}&school=${encodeURIComponent(activeSchool?.name ?? '')}&from=${encodeURIComponent(session?.displayName ?? '')}`
     return (
       <MembersScreen
         sala={activeSala}

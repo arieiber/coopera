@@ -14,15 +14,16 @@ export default function handler(req) {
   const token = searchParams.get('token') ?? ''
   const sala = searchParams.get('sala') ?? 'una sala'
   const school = searchParams.get('school') ?? ''
+  const from = searchParams.get('from') ?? ''
 
   const ua = req.headers.get('user-agent') ?? ''
   const isBot = /whatsapp|telegram|slack|twitter|facebook|linkedIn|bot|crawler|spider|preview/i.test(ua)
 
   const appUrl = `https://coopera-crc.vercel.app/?invite=${token}`
-  const ogImage = `https://coopera-crc.vercel.app/api/og?sala=${encodeURIComponent(sala)}&school=${encodeURIComponent(school)}`
-  const title = `Te invitaron a ${sala}`
+  const ogImage = `https://coopera-crc.vercel.app/api/og?sala=${encodeURIComponent(sala)}&school=${encodeURIComponent(school)}&from=${encodeURIComponent(from)}`
+  const title = from ? `${from} te invita a ${sala}` : `Te invitaron a ${sala}`
   const description = school
-    ? `Unite a la sala de ${school} en Coopera — la caja común digital para grupos de padres.`
+    ? `Unite a la sala de ${school} en Coopera — colectas escolares sin drama, sin mensajitos, sin comprobantes.`
     : 'Coopera — colectas escolares sin drama, sin WhatsApp, sin comprobantes.'
 
   if (!isBot) {
