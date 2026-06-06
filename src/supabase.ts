@@ -28,10 +28,19 @@ export type Member = {
   sala_id: string
   email: string
   display_name: string | null
+  child_name: string | null
   wallet_address: string | null
   role: 'madrina' | 'parent'
   status: 'pending' | 'approved' | 'rejected'
   joined_at: string
+}
+
+/** Returns "Ariel · Papá/Mamá de Juan" or just "Ariel" if no child_name */
+export function memberLabel(m: Pick<Member, 'display_name' | 'child_name' | 'email'>): string {
+  return m.display_name ?? m.email ?? ''
+}
+export function memberChildLabel(m: Pick<Member, 'child_name'>): string | null {
+  return m.child_name ? `de ${m.child_name}` : null
 }
 
 export type OverflowPolicy = 'cap' | 'refund' | 'rollover'

@@ -81,7 +81,7 @@ export async function getMember(salaId: string, email: string): Promise<Member |
   return data ?? null
 }
 
-export async function requestJoin(salaId: string, email: string, displayName: string, asMadrina = false): Promise<Member> {
+export async function requestJoin(salaId: string, email: string, displayName: string, asMadrina = false, childName?: string): Promise<Member> {
   const existing = await getMember(salaId, email)
   if (existing) return existing
 
@@ -91,6 +91,7 @@ export async function requestJoin(salaId: string, email: string, displayName: st
       sala_id: salaId,
       email,
       display_name: displayName,
+      child_name: childName ?? null,
       role: asMadrina ? 'madrina' : 'parent',
       status: asMadrina ? 'approved' : 'pending',
     })

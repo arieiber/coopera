@@ -16,6 +16,7 @@ interface Props {
 export function JoinScreen({ sala, schoolName, isCreator = false, circlesWallet, circlesName, onJoined, onBack }: Props) {
   const [email, setEmail] = useState('')
   const [displayName, setDisplayName] = useState('')
+  const [childName, setChildName] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [isReturning, setIsReturning] = useState(false)
@@ -44,6 +45,7 @@ export function JoinScreen({ sala, schoolName, isCreator = false, circlesWallet,
       const savedName = existing?.display_name
       if (savedName) setDisplayName(savedName)
       else if (circlesName) setDisplayName(circlesName)
+      if (existing?.child_name) setChildName(existing.child_name)
     })
   }, [circlesMode, circlesEmail, circlesName, sala.id])
 
@@ -54,7 +56,7 @@ export function JoinScreen({ sala, schoolName, isCreator = false, circlesWallet,
     setLoading(true)
     setError('')
     try {
-      const member = await requestJoin(sala.id, circlesEmail, displayName, effectivelyMadrina)
+      const member = await requestJoin(sala.id, circlesEmail, displayName, effectivelyMadrina, childName.trim() || undefined)
       if (member.status === 'rejected') {
         setError('Tu solicitud fue rechazada por la madrina de la sala.')
         setLoading(false)
@@ -90,7 +92,7 @@ export function JoinScreen({ sala, schoolName, isCreator = false, circlesWallet,
     setLoading(true)
     setError('')
     try {
-      const member = await requestJoin(sala.id, email.trim().toLowerCase(), displayName.trim(), effectivelyMadrina)
+      const member = await requestJoin(sala.id, email.trim().toLowerCase(), displayName.trim(), effectivelyMadrina, childName.trim() || undefined)
       if (member.status === 'rejected') {
         setError('Tu solicitud fue rechazada por la madrina de la sala.')
         setLoading(false)
@@ -197,14 +199,32 @@ export function JoinScreen({ sala, schoolName, isCreator = false, circlesWallet,
 
             {/* Allow editing name if needed */}
             <div>
-              <label className="text-sm font-medium text-gray-700 block mb-1">Tu nombre en la sala</label>
+              <label className="text-sm font-medium text-gray-700 block mb-1">Tu nombre</label>
               <input
                 type="text"
                 value={displayName}
                 onChange={e => setDisplayName(e.target.value)}
-                placeholder="Nombre visible para los demás"
+                placeholder="Ej: María"
                 className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-violet-400"
               />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-700 block mb-1">
+                Mamá / Papá de… <span className="text-gray-400 font-normal">(opcional)</span>
+              </label>
+              <input
+                type="text"
+                value={childName}
+                onChange={e => setChildName(e.target.value)}
+                placeholder="Ej: Sofía"
+                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-violet-400"
+              />
+              {childName && (
+                <p className="text-xs text-gray-400 mt-1 ml-1">
+                  Vas a aparecer como <span className="text-gray-600 font-medium">{displayName || 'vos'}</span>
+                  <span className="text-gray-400"> · de {childName}</span>
+                </p>
+              )}
             </div>
           </div>
         ) : (
@@ -214,11 +234,29 @@ export function JoinScreen({ sala, schoolName, isCreator = false, circlesWallet,
               <label className="text-sm font-medium text-gray-700 block mb-1">Tu nombre</label>
               <input
                 type="text"
-                placeholder="Ej: María García"
+                placeholder="Ej: María"
                 value={displayName}
                 onChange={e => setDisplayName(e.target.value)}
                 className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-violet-400"
               />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-700 block mb-1">
+                Mamá / Papá de… <span className="text-gray-400 font-normal">(opcional)</span>
+              </label>
+              <input
+                type="text"
+                placeholder="Ej: Sofía"
+                value={childName}
+                onChange={e => setChildName(e.target.value)}
+                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-violet-400"
+              />
+              {childName && (
+                <p className="text-xs text-gray-400 mt-1 ml-1">
+                  Vas a aparecer como <span className="text-gray-600 font-medium">{displayName || 'vos'}</span>
+                  <span className="text-gray-400"> · de {childName}</span>
+                </p>
+              )}
             </div>
             <div>
               <label className="text-sm font-medium text-gray-700 block mb-1">Tu e-mail</label>

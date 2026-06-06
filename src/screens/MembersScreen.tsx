@@ -3,6 +3,7 @@ import { getMembers, updateMemberStatus, updateSalaPayoutAddress } from '../db'
 import { trustMember, isMiniappMode } from '../circles'
 import type { Member, Sala } from '../supabase'
 import { WalletCreator } from '../components/WalletCreator'
+import { MemberName } from '../components/MemberName'
 import { resolveEns, isEns, generateSubname } from '../ens'
 import { useTerm, usePrefs } from '../prefs'
 
@@ -289,9 +290,9 @@ export function MembersScreen({ sala, inviteUrl, madrinalWallet, crcBalance, onB
             <div className="space-y-2">
               {pending.map(m => (
                 <div key={m.id} className="bg-white border border-yellow-200 rounded-xl p-3 flex items-center justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="font-medium text-gray-900 text-sm truncate">{m.display_name}</p>
-                    <p className="text-xs text-gray-400 truncate">{m.email}</p>
+                  <div className="min-w-0 flex-1">
+                    <MemberName member={m} size="sm" />
+                    <p className="text-xs text-gray-400 truncate mt-0.5">{m.email}</p>
                   </div>
                   <div className="flex gap-1 shrink-0">
                     <button
@@ -327,9 +328,9 @@ export function MembersScreen({ sala, inviteUrl, madrinalWallet, crcBalance, onB
                   <div className="w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center text-violet-700 font-bold text-sm shrink-0">
                     {(m.display_name ?? m.email)[0].toUpperCase()}
                   </div>
-                  <div className="min-w-0">
-                    <p className="font-medium text-gray-900 text-sm truncate">{m.display_name ?? m.email}</p>
-                    <p className="text-xs text-gray-400">{m.role === 'madrina' ? '⭐ Madrina' : 'Padre/Madre'}</p>
+                  <div className="min-w-0 flex-1">
+                    <MemberName member={m} size="sm" />
+                    <p className="text-xs text-gray-400 mt-0.5">{m.role === 'madrina' ? '⭐ Madrina' : 'Padre/Madre'}</p>
                   </div>
                   {m.wallet_address && (
                     <span className="ml-auto text-xs text-green-600 shrink-0">✓ {t('cuenta digital')}</span>
