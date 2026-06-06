@@ -136,7 +136,14 @@ export function SalaScreen({ sala, schoolName, session, crcBalance, wallet, onOp
         setError(`Solo se aceptaron ${actual} ${t('créditos')} para completar la meta exacta.`)
       }
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Error al contribuir')
+      const raw = e instanceof Error ? e.message : 'Error al contribuir'
+      // Translate Circles protocol errors to plain Spanish
+      const msg = raw.includes('No valid transfer path')
+        ? `No se pudo enviar: no hay conexión de confianza (trust) entre tu wallet y la cuenta de cobro de la sala en la red Circles. Contactá a la madrina para que te agregue como contacto de confianza en circles.garden.`
+        : raw.includes('insufficient balance') || raw.includes('balance')
+        ? `No tenés suficientes ${t('créditos')} en tu wallet de Circles.`
+        : raw
+      setError(msg)
     } finally {
       setSending(false)
     }

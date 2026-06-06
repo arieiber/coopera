@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
-import { subscribeWallet, getCrcBalance, getCirclesProfile } from './circles'
+import { subscribeWallet, getCrcBalance, getCirclesProfile, trustMember } from './circles'
 import { identifyWallet, track } from './analytics'
 import { getSession, saveSession, clearSession } from './session'
 import type { Session } from './session'
-import { getSalasBySchool, createSala as dbCreateSala, getMember, updateMemberWallet } from './db'
+import { getSalasBySchool, createSala as dbCreateSala, getMember, updateMemberWallet, getMembers } from './db'
 import { supabase } from './supabase'
 import type { School, Sala } from './supabase'
 import { HomeScreen } from './screens/HomeScreen'
@@ -55,9 +55,19 @@ export default function App() {
         // Auto-link Circles wallet to existing email-based account
         const sess = getSession()
         if (sess) {
-          getMember(sess.salaId, sess.email).then(member => {
+          getMember(sess.salaId, sess.email).then(async member => {
             if (member && !member.wallet_address) {
-              updateMemberWallet(member.id, addr).catch(console.error)
+              await updateMemberWallet(member.id, addr).catch(console.error)
+              // If member is already approved, trigger trust from madrina → member
+              // so CRC can flow through the Circles trust graph
+              if (member.status === 'approved') {
+                getMembers(sess.salaId).then(allMembers => {
+                  const madrina = allMembers.find(m => m.role === 'madrina' && m.wallet_address)
+                  if (madrina?.wallet_address) {
+                    trustMember(madrina.wallet_address, addr).catch(console.error)
+                  }
+                })
+              }
             }
           })
         }
