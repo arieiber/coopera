@@ -26,6 +26,7 @@ export function MembersScreen({ sala, buildInviteUrl, madrinalWallet, crcBalance
   const [payoutSaved, setPayoutSaved] = useState(false)
   const [payoutError, setPayoutError] = useState('')
   const [showWalletCreator, setShowWalletCreator] = useState(false)
+  const [trustPending, setTrustPending] = useState<string | null>(null) // member id being trusted
   const [ensResolving, setEnsResolving] = useState(false)
   const [resolvedAddress, setResolvedAddress] = useState<string | null>(null)
   const ensTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -38,14 +39,19 @@ export function MembersScreen({ sala, buildInviteUrl, madrinalWallet, crcBalance
 
   async function handleApprove(memberId: string) {
     await updateMemberStatus(memberId, 'approved')
-    // Circles primitive: madrina trusts the new member's wallet
-    if (isMiniappMode() && madrinalWallet) {
-      const member = members.find(m => m.id === memberId)
-      if (member?.wallet_address) {
-        trustMember(madrinalWallet, member.wallet_address).catch(console.error)
-      }
+    await load()
+    // If this member has a Circles wallet, offer to create the trust connection
+    const member = members.find(m => m.id === memberId)
+    if (isMiniappMode() && madrinalWallet && member?.wallet_address) {
+      setTrustPending(memberId)
     }
-    load()
+  }
+
+  async function doTrust(memberId: string) {
+    const member = members.find(m => m.id === memberId)
+    if (!member?.wallet_address || !madrinalWallet) return
+    setTrustPending(null)
+    await trustMember(madrinalWallet, member.wallet_address).catch(console.error)
   }
 
   async function handleReject(memberId: string) {
@@ -342,6 +348,43 @@ export function MembersScreen({ sala, buildInviteUrl, madrinalWallet, crcBalance
           )}
         </div>
       </div>
+
+      {/* Trust explanation modal — shown before Circles wallet dialog */}
+      {trustPending && (() => {
+        const m = members.find(x => x.id === trustPending)
+        return (
+          <div className="fixed inset-0 bg-black/60 flex items-end justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl w-full max-w-md p-5 space-y-4">
+              <div className="flex items-start gap-3">
+                <span className="text-2xl">🤝</span>
+                <div>
+                  <p className="font-semibold text-gray-900">Conectar para recibir créditos</p>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Para que <span className="font-medium text-gray-700">{m?.display_name ?? 'este miembro'}</span> pueda enviarte créditos, necesitás confirmar una conexión en la red.
+                  </p>
+                </div>
+              </div>
+              <div className="bg-amber-50 border border-amber-200 rounded-xl px-3 py-2.5 text-xs text-amber-800">
+                Tu billetera va a mostrar una pantalla de confirmación. <strong>No mueve fondos</strong> — solo establece la conexión.
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setTrustPending(null)}
+                  className="flex-1 border border-gray-200 text-gray-500 py-2.5 rounded-xl text-sm"
+                >
+                  Ahora no
+                </button>
+                <button
+                  onClick={() => doTrust(trustPending)}
+                  className="flex-1 bg-violet-600 text-white py-2.5 rounded-xl text-sm font-semibold"
+                >
+                  Conectar →
+                </button>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
     </div>
   )
 }
