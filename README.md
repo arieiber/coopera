@@ -128,3 +128,49 @@ The madrina is often also a parent and wants to contribute to fundraisers she cr
 
 **Ariel Eiberman** — Circles/Garage Builder Program, June 2026  
 [github.com/arieiber/coopera-crc](https://github.com/arieiber/coopera-crc)
+
+---
+
+## User Onboarding Flow: From Demo to Real
+
+This is the intended journey for new users arriving via an invite link:
+
+```
+1. Parent receives WhatsApp invite link from the coordinator
+      ↓
+2. Opens link → lands in Coopera (demo mode)
+   • Sees orange "demo · activate account →" badge next to their name
+   • Can explore the sala, see active fundraisers, contribute in demo mode
+   • Demo contributions are stored with is_demo = true
+      ↓
+3. Taps "activate account →" → goes to circles.garden
+   • Registers as a human in the Circles protocol
+   • Gets a personal CRC wallet that starts accumulating tokens automatically
+      ↓
+4. Returns to Coopera via Circles Playground (circles.gnosis.io/playground)
+   • Circles wallet is injected automatically by the Playground
+   • Coopera detects the wallet and auto-links it to the existing email account
+   • "demo" badge disappears — the user is now a real Circles participant
+   • Future contributions are real on-chain CRC transfers
+```
+
+This flow is designed so that **no crypto knowledge is required to start**. Users can explore the app fully in demo mode and upgrade to real at their own pace.
+
+---
+
+## Notification System
+
+### Current: In-app badge
+When a parent requests access to a sala, the coordinator ("madrina") sees a **red notification badge** on the Members button showing the number of pending requests. The badge disappears once all requests are approved or rejected.
+
+### Roadmap: Push notifications
+The following notification channels are planned:
+
+| Channel | Trigger | Status |
+|---|---|---|
+| In-app badge | New member request | ✅ Implemented |
+| Email | New member request, fundraiser completed | 🔜 Planned (Supabase Edge Functions + Resend) |
+| WhatsApp | New member request, approval confirmation | 🔜 Planned (Volt / WhatsApp Business API) |
+
+WhatsApp is the primary communication channel for Argentine parent groups — receiving the notification where they already live would dramatically improve response rates.
+

@@ -34,6 +34,7 @@ export function SalaScreen({ sala, schoolName, session, crcBalance, wallet, onOp
   const [view, setView] = useState<View>('list')
   const [loading, setLoading] = useState(true)
   const [memberCount, setMemberCount] = useState(0)
+  const [pendingCount, setPendingCount] = useState(0)
   const [inviteCopied, setInviteCopied] = useState(false)
   const [showInviteModal, setShowInviteModal] = useState(false)
 
@@ -68,6 +69,7 @@ export function SalaScreen({ sala, schoolName, session, crcBalance, wallet, onOp
   async function loadMemberCount() {
     const members = await getMembers(sala.id)
     setMemberCount(members.filter(m => m.status === 'approved').length)
+    if (isMadrina) setPendingCount(members.filter(m => m.status === 'pending').length)
   }
 
   async function openVaca(vaca: Vaca) {
@@ -477,8 +479,13 @@ export function SalaScreen({ sala, schoolName, session, crcBalance, wallet, onOp
           <div className="flex items-center gap-2">
             {isMadrina && (
               <button onClick={onOpenMembers}
-                className="text-xs bg-violet-100 text-violet-700 px-3 py-1.5 rounded-full font-medium">
+                className="relative text-xs bg-violet-100 text-violet-700 px-3 py-1.5 rounded-full font-medium hover:bg-violet-200 transition-colors">
                 👥 Miembros
+                {pendingCount > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-xs font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 leading-none">
+                    {pendingCount}
+                  </span>
+                )}
               </button>
             )}
             <button onClick={onChangeSala}
