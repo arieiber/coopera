@@ -79,14 +79,18 @@ export default function App() {
     return unsub
   }, [])
 
-  // On load, if session exists go straight to sala
+  // On load, if session exists go straight to sala (and load its school)
   useEffect(() => {
     const sess = getSession()
     if (!sess) return
     setSession(sess)
-    supabase.from('salas').select('*').eq('id', sess.salaId).single()
+    supabase.from('salas').select('*, schools(*)').eq('id', sess.salaId).single()
       .then(({ data }) => {
-        if (data) { setActiveSala(data); setView('sala') }
+        if (data) {
+          setActiveSala(data)
+          if (data.schools) setActiveSchool(data.schools as School)
+          setView('sala')
+        }
       })
   }, [])
 
