@@ -118,9 +118,11 @@ export function SalaScreen({ sala, schoolName, session, crcBalance, wallet, onOp
     try {
       const sink = sala.payout_address
       const sinkIsWallet = sink && /^0x[0-9a-fA-F]{40}$/.test(sink)
-      if (!demoMode && wallet && sinkIsWallet) await sendCrc(wallet, sink, crc)
+      // If no payout address, treat as demo even if wallet is real — no CRC can be sent
+      const effectiveDemoMode = demoMode || !sinkIsWallet
+      if (!effectiveDemoMode && wallet && sinkIsWallet) await sendCrc(wallet, sink, crc)
       track('vaca_contributed', { sala_id: sala.id, amount: crc })
-      const actual = await dbAddContribution(activeVaca.id, session.email, session.displayName, crc, undefined, demoMode)
+      const actual = await dbAddContribution(activeVaca.id, session.email, session.displayName, crc, undefined, effectiveDemoMode)
       setAmount('')
       setJustSent(true)
       setTimeout(() => setJustSent(false), 2000)
@@ -395,7 +397,13 @@ export function SalaScreen({ sala, schoolName, session, crcBalance, wallet, onOp
                       </div>
                       <div>
                         <span className="text-gray-700">{c.display_name ?? c.member_email}</span>
-                        {c.is_demo && <span className="ml-1.5 text-xs text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-full">demo</span>}
+                        {c.is_demo && (
+                          <span className="ml-1.5 text-xs px-1.5 py-0.5 rounded-full"
+                            style={{ backgroundColor: sala.payout_address ? undefined : '#fef9c3', color: sala.payout_address ? '#9ca3af' : '#854d0e' }}
+                          >
+                            {sala.payout_address ? 'demo' : 'pendiente'}
+                          </span>
+                        )}
                       </div>
                     </div>
                     <span className="font-semibold text-gray-900">{c.amount_crc} {t('créditos')}</span>
@@ -430,9 +438,13 @@ export function SalaScreen({ sala, schoolName, session, crcBalance, wallet, onOp
             {perFamilyForVaca(activeVaca) && (
               <button
                 onClick={() => setAmount(String(perFamilyForVaca(activeVaca)))}
-                className="w-full border border-violet-200 bg-violet-50 text-violet-700 py-2 rounded-xl text-sm font-medium hover:bg-violet-100 transition-colors"
+                className={`w-full border py-2 rounded-xl text-sm font-medium transition-colors ${
+                  !sala.payout_address
+                    ? 'border-yellow-200 bg-yellow-50 text-yellow-800 hover:bg-yellow-100'
+                    : 'border-violet-200 bg-violet-50 text-violet-700 hover:bg-violet-100'
+                }`}
               >
-                Poner cuota sugerida: {perFamilyForVaca(activeVaca)} {t('créditos')}
+                {!sala.payout_address ? '📌 Reservar' : 'Poner'} cuota sugerida: {perFamilyForVaca(activeVaca)} {t('créditos')}
               </button>
             )}
             <div className="flex gap-2">
