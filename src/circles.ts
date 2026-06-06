@@ -110,8 +110,14 @@ export async function sendCrc(
   amountCrc: number
 ): Promise<void> {
   if (!isMiniappMode()) {
-    // Demo mode: just log, don't throw
     console.log(`[demo] sendCrc ${amountCrc} CRC → ${to}`)
+    return
+  }
+  // Self-contribution: madrina is both sender and payout address.
+  // Circles cannot transfer to itself — but the contribution is still valid:
+  // the madrina already holds the CRC, so no movement is needed.
+  if (fromAddress.toLowerCase() === to.toLowerCase()) {
+    console.log(`[circles] self-contribution: ${amountCrc} CRC — skipping tx (from === to)`)
     return
   }
   const runner = createMiniappRunner(fromAddress)

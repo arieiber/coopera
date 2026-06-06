@@ -111,3 +111,20 @@ VITE_ENS_DOMAIN=
 
 **Ariel Eiberman** — ETHBucharest 2025  
 [github.com/arieiber/coopera-crc](https://github.com/arieiber/coopera-crc)
+
+---
+
+## Limitaciones conocidas y roadmap
+
+### Auto-contribución de la madrina
+La madrina suele ser también madre/padre y quiere contribuir a las vacas que ella misma creó. Cuando su propia wallet es la cuenta de cobro de la sala, Circles no puede transferir tokens de una dirección a sí misma.
+
+**Solución actual:** si `from === payout_address`, la contribución se registra sin tx on-chain. Los CRC ya están en la wallet de la madrina.
+
+**Visión a largo plazo — Arcas de la sala:** cada sala debería tener su propio address independiente (tipo Circles Group o Gnosis Safe) donde se acumulan los fondos colectivos. La madrina sería la admin con derecho a retirar. Esto separa "los fondos del grupo" de "la wallet personal de quien coordina" — que es la separación correcta para cualquier tesorería colectiva.
+
+### Otras mejoras planeadas
+- [ ] Circles Group como treasury de sala (fondos colectivos separados de wallets individuales)
+- [ ] Notificaciones vía WhatsApp cuando se aprueba un miembro o se completa una vaca
+- [ ] Historial de contribuciones personales por usuario
+- [ ] Integración con exchange para convertir CRC → USDC.e → cuenta bancaria
