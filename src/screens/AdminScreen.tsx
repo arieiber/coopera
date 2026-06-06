@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import {
   adminGetAllSchools, adminGetAllSalas,
   adminDeleteMember, adminDeleteSala, adminDeleteSchool,
-  getMembers, getVacas, deleteVaca, updateMemberStatus,
+  getMembers, getVacas, deleteVaca, updateMemberStatus, updateMemberRole,
 } from '../db'
 import type { School, Sala, Member, Vaca } from '../supabase'
 
@@ -46,6 +46,8 @@ export function AdminScreen({ onExit }: { onExit: () => void }) {
       if (confirm.type === 'vaca') { await deleteVaca(confirm.id); if (selectedSala) getVacas(selectedSala.id).then(setVacas) }
       if (confirm.type === 'approve') { await updateMemberStatus(confirm.id, 'approved'); if (selectedSala) getMembers(selectedSala.id).then(setMembers) }
       if (confirm.type === 'reject') { await updateMemberStatus(confirm.id, 'rejected'); if (selectedSala) getMembers(selectedSala.id).then(setMembers) }
+      if (confirm.type === 'make-madrina') { await updateMemberRole(confirm.id, 'madrina'); if (selectedSala) getMembers(selectedSala.id).then(setMembers) }
+      if (confirm.type === 'remove-madrina') { await updateMemberRole(confirm.id, 'parent'); if (selectedSala) getMembers(selectedSala.id).then(setMembers) }
       setConfirm(null)
     } catch (e) { alert(e instanceof Error ? e.message : 'Error') }
   }
@@ -161,13 +163,28 @@ export function AdminScreen({ onExit }: { onExit: () => void }) {
               <div className="space-y-1.5">
                 {approved.map(m => (
                   <div key={m.id} className="flex items-center justify-between bg-gray-800/50 rounded-xl px-3 py-2">
-                    <div>
-                      <span className="text-sm text-gray-300">{m.display_name ?? m.email}</span>
-                      <span className="ml-2 text-xs text-gray-600">{m.role === 'madrina' ? '⭐' : ''}</span>
-                      {m.wallet_address && <span className="ml-2 text-xs text-green-600">● Circles</span>}
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="text-sm text-gray-300 truncate">{m.display_name ?? m.email}</span>
+                      {m.role === 'madrina' && <span className="text-xs bg-yellow-900/60 text-yellow-400 px-1.5 py-0.5 rounded-full shrink-0">⭐ madrina</span>}
+                      {m.wallet_address && <span className="text-xs text-green-600 shrink-0">● Circles</span>}
                     </div>
-                    <button onClick={() => setConfirm({ type: 'member', id: m.id, label: `eliminar a ${m.display_name}` })}
-                      className="text-xs text-gray-700 hover:text-red-400 px-1">🗑</button>
+                    <div className="flex items-center gap-1 shrink-0 ml-2">
+                      {m.role !== 'madrina' ? (
+                        <button
+                          onClick={() => setConfirm({ type: 'make-madrina', id: m.id, label: `hacer madrina a ${m.display_name}` })}
+                          className="text-xs bg-yellow-900/40 text-yellow-400 hover:bg-yellow-900 px-2 py-1 rounded-lg"
+                          title="Convertir en madrina"
+                        >⭐ Madrina</button>
+                      ) : (
+                        <button
+                          onClick={() => setConfirm({ type: 'remove-madrina', id: m.id, label: `quitar madrina a ${m.display_name}` })}
+                          className="text-xs bg-gray-700 text-gray-400 hover:bg-gray-600 px-2 py-1 rounded-lg"
+                          title="Quitar rol de madrina"
+                        >Quitar rol</button>
+                      )}
+                      <button onClick={() => setConfirm({ type: 'member', id: m.id, label: `eliminar a ${m.display_name}` })}
+                        className="text-xs text-gray-700 hover:text-red-400 px-1">🗑</button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -247,8 +264,11 @@ export function AdminScreen({ onExit }: { onExit: () => void }) {
           <div className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-md p-5 space-y-4">
             <p className="text-sm font-semibold text-gray-100">¿Confirmar acción?</p>
             <p className="text-xs text-gray-400 bg-gray-800 rounded-xl px-3 py-2">
-              {confirm.type === 'approve' ? `✓ Aprobar: ` :
-               confirm.type === 'reject' ? `✗ Rechazar: ` : `🗑 Eliminar: `}
+              {confirm.type === 'approve' ? '✓ Aprobar: ' :
+               confirm.type === 'reject' ? '✗ Rechazar: ' :
+               confirm.type === 'make-madrina' ? '⭐ Promover: ' :
+               confirm.type === 'remove-madrina' ? '↩ Quitar rol: ' :
+               '🗑 Eliminar: '}
               <span className="text-gray-200">{confirm.label}</span>
             </p>
             <p className="text-xs text-red-400">Esta acción no involucra movimiento de créditos.</p>
@@ -259,7 +279,9 @@ export function AdminScreen({ onExit }: { onExit: () => void }) {
               </button>
               <button onClick={doConfirm}
                 className={`flex-1 py-2 rounded-xl text-sm font-semibold ${
-                  confirm.type === 'approve' ? 'bg-green-700 text-green-100' : 'bg-red-700 text-red-100'
+                  confirm.type === 'approve' || confirm.type === 'make-madrina' ? 'bg-green-700 text-green-100' :
+                  confirm.type === 'remove-madrina' ? 'bg-gray-600 text-gray-100' :
+                  'bg-red-700 text-red-100'
                 }`}>
                 Confirmar
               </button>

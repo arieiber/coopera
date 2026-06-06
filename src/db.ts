@@ -108,6 +108,14 @@ export async function updateMemberStatus(memberId: string, status: 'approved' | 
   if (error) throw new Error(error.message)
 }
 
+export async function updateMemberRole(memberId: string, role: 'madrina' | 'parent'): Promise<void> {
+  const { error } = await supabase
+    .from('members')
+    .update({ role })
+    .eq('id', memberId)
+  if (error) throw new Error(error.message)
+}
+
 export async function updateMemberWallet(memberId: string, wallet: string): Promise<void> {
   const { error } = await supabase
     .from('members')

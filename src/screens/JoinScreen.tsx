@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { requestJoin, getMember } from '../db'
+import { requestJoin, getMember, getMembers } from '../db'
 import type { Sala } from '../supabase'
 import type { Session } from '../session'
 
@@ -19,11 +19,21 @@ export function JoinScreen({ sala, schoolName, isCreator = false, circlesWallet,
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [isReturning, setIsReturning] = useState(false)
+  const [salaHasMadrina, setSalaHasMadrina] = useState<boolean | null>(null) // null = loading
+  const [wantsMadrina, setWantsMadrina] = useState(false)
 
   // In Circles Garage: wallet + name are already known — skip the form
   const circlesMode = !!circlesWallet
   // Use wallet address as internal email identifier for Circles users
   const circlesEmail = circlesWallet ? `${circlesWallet.toLowerCase()}@circles` : null
+
+  // Check if sala already has a madrina
+  useEffect(() => {
+    getMembers(sala.id).then(members => {
+      const hasMadrina = members.some(m => m.role === 'madrina' && m.status === 'approved')
+      setSalaHasMadrina(hasMadrina)
+    })
+  }, [sala.id])
 
   // Auto-join or pre-fill when Circles identity is available
   useEffect(() => {
@@ -37,12 +47,14 @@ export function JoinScreen({ sala, schoolName, isCreator = false, circlesWallet,
     })
   }, [circlesMode, circlesEmail, circlesName, sala.id])
 
+  const effectivelyMadrina = isCreator || wantsMadrina
+
   async function handleJoinCircles() {
     if (!circlesEmail || !displayName) return
     setLoading(true)
     setError('')
     try {
-      const member = await requestJoin(sala.id, circlesEmail, displayName, isCreator)
+      const member = await requestJoin(sala.id, circlesEmail, displayName, effectivelyMadrina)
       if (member.status === 'rejected') {
         setError('Tu solicitud fue rechazada por la madrina de la sala.')
         setLoading(false)
@@ -78,7 +90,7 @@ export function JoinScreen({ sala, schoolName, isCreator = false, circlesWallet,
     setLoading(true)
     setError('')
     try {
-      const member = await requestJoin(sala.id, email.trim().toLowerCase(), displayName.trim(), isCreator)
+      const member = await requestJoin(sala.id, email.trim().toLowerCase(), displayName.trim(), effectivelyMadrina)
       if (member.status === 'rejected') {
         setError('Tu solicitud fue rechazada por la madrina de la sala.')
         setLoading(false)
@@ -98,6 +110,9 @@ export function JoinScreen({ sala, schoolName, isCreator = false, circlesWallet,
     }
   }
 
+  // Offer madrina role when sala has no madrina and user is not the creator
+  const showMadrinaOffer = !isCreator && salaHasMadrina === false
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col max-w-md mx-auto">
       <div className="flex items-center gap-3 p-4 bg-white border-b border-gray-100">
@@ -116,6 +131,12 @@ export function JoinScreen({ sala, schoolName, isCreator = false, circlesWallet,
               <h2 className="font-bold text-gray-900 text-lg">Creaste la sala</h2>
               <p className="text-sm text-gray-500">Vas a ser la madrina. Confirmá tus datos para entrar.</p>
             </>
+          ) : wantsMadrina ? (
+            <>
+              <div className="text-4xl">⭐</div>
+              <h2 className="font-bold text-gray-900 text-lg">Vas a ser la madrina</h2>
+              <p className="text-sm text-gray-500">Entrás directamente como responsable de la sala.</p>
+            </>
           ) : (
             <>
               <div className="text-4xl">👋</div>
@@ -124,6 +145,37 @@ export function JoinScreen({ sala, schoolName, isCreator = false, circlesWallet,
             </>
           )}
         </div>
+
+        {/* ── Madrina offer — only when sala has no madrina yet ── */}
+        {showMadrinaOffer && (
+          <div className={`rounded-2xl border-2 p-4 cursor-pointer transition-colors ${
+            wantsMadrina
+              ? 'border-yellow-400 bg-yellow-50'
+              : 'border-gray-200 bg-white hover:border-yellow-300'
+          }`}
+            onClick={() => setWantsMadrina(v => !v)}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">⭐</span>
+                <div>
+                  <p className="text-sm font-semibold text-gray-900">¿Querés ser la madrina?</p>
+                  <p className="text-xs text-gray-500">Esta sala no tiene responsable aún. Podés tomar ese rol.</p>
+                </div>
+              </div>
+              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                wantsMadrina ? 'border-yellow-500 bg-yellow-400' : 'border-gray-300'
+              }`}>
+                {wantsMadrina && <span className="text-white text-xs font-bold">✓</span>}
+              </div>
+            </div>
+            {wantsMadrina && (
+              <p className="text-xs text-yellow-700 mt-2 pt-2 border-t border-yellow-200">
+                Como madrina vas a poder aprobar miembros, crear colectas y configurar la cuenta de cobro.
+              </p>
+            )}
+          </div>
+        )}
 
         {/* ── Circles Garage mode: identity already known ── */}
         {circlesMode ? (
@@ -191,9 +243,9 @@ export function JoinScreen({ sala, schoolName, isCreator = false, circlesWallet,
           className="w-full bg-violet-600 text-white py-3 rounded-xl font-semibold disabled:opacity-50 hover:bg-violet-700 transition-colors"
         >
           {loading ? 'Cargando...'
-            : isCreator ? 'Entrar como madrina ⭐'
+            : isCreator || wantsMadrina ? 'Entrar como madrina ⭐'
             : isReturning ? 'Volver a entrar →'
-            : circlesMode ? `Entrar con Circles →`
+            : circlesMode ? 'Entrar con Circles →'
             : 'Pedir acceso'}
         </button>
       </div>
