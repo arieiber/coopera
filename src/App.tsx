@@ -3,7 +3,7 @@ import { subscribeWallet, getCrcBalance, getCirclesProfile } from './circles'
 import { identifyWallet, track } from './analytics'
 import { getSession, saveSession, clearSession } from './session'
 import type { Session } from './session'
-import { getSalasBySchool, createSala as dbCreateSala } from './db'
+import { getSalasBySchool, createSala as dbCreateSala, getMember, updateMemberWallet } from './db'
 import { supabase } from './supabase'
 import type { School, Sala } from './supabase'
 import { HomeScreen } from './screens/HomeScreen'
@@ -40,6 +40,15 @@ export default function App() {
         getCrcBalance(addr).then(setCrcBalance)
         getCirclesProfile(addr).then(p => setCirclesName(p?.name ?? null))
         identifyWallet(addr)
+        // Auto-link Circles wallet to existing email-based account
+        const sess = getSession()
+        if (sess) {
+          getMember(sess.salaId, sess.email).then(member => {
+            if (member && !member.wallet_address) {
+              updateMemberWallet(member.id, addr).catch(console.error)
+            }
+          })
+        }
       } else {
         setCrcBalance(null)
         setCirclesName(null)
@@ -157,6 +166,7 @@ export default function App() {
         sala={activeSala}
         inviteUrl={inviteUrl}
         madrinalWallet={wallet}
+        crcBalance={crcBalance}
         onBack={() => setView('sala')}
         onSalaUpdated={updated => setActiveSala(updated)}
       />

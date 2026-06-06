@@ -406,6 +406,18 @@ export function SalaScreen({ sala, schoolName, session, crcBalance, wallet, onOp
         {/* Contribute input */}
         {isActive && (
           <div className="p-4 bg-white border-t border-gray-100 space-y-2">
+            {/* Balance pill — visible when in Circles mode */}
+            {wallet && crcBalance !== null && (
+              <div className="flex items-center justify-between text-xs text-gray-500 bg-gray-50 rounded-xl px-3 py-2">
+                <span>Tu saldo disponible</span>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-1.5 h-1.5 rounded-full bg-green-400" />
+                  <span className="font-semibold text-gray-800">
+                    {Math.floor(crcBalance).toLocaleString('es-AR')} {techMode ? 'CRC' : 'créd.'}
+                  </span>
+                </div>
+              </div>
+            )}
             {!demoMode && !sala.payout_address && (
               <div className="bg-yellow-50 border border-yellow-200 rounded-xl px-3 py-2.5 text-xs text-yellow-800">
                 ⚠️ La madrina todavía no configuró dónde recibir los fondos. Tus créditos quedarán registrados pero no se enviarán hasta que lo haga.

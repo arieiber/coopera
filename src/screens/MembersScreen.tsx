@@ -10,11 +10,12 @@ interface Props {
   sala: Sala
   inviteUrl: string
   madrinalWallet: string | null
+  crcBalance: number | null
   onBack: () => void
   onSalaUpdated: (updated: Sala) => void
 }
 
-export function MembersScreen({ sala, inviteUrl, madrinalWallet, onBack, onSalaUpdated }: Props) {
+export function MembersScreen({ sala, inviteUrl, madrinalWallet, crcBalance, onBack, onSalaUpdated }: Props) {
   const t = useTerm()
   const { techMode } = usePrefs()
   const [members, setMembers] = useState<Member[]>([])
@@ -113,7 +114,15 @@ export function MembersScreen({ sala, inviteUrl, madrinalWallet, onBack, onSalaU
     <div className="min-h-screen bg-gray-50 flex flex-col max-w-md mx-auto">
       <div className="flex items-center gap-3 p-4 bg-white border-b border-gray-100">
         <button onClick={onBack} className="text-gray-500">←</button>
-        <h2 className="font-semibold text-gray-900">Miembros · {sala.name}</h2>
+        <h2 className="font-semibold text-gray-900 flex-1">Miembros · {sala.name}</h2>
+        {madrinalWallet && (
+          <div className="flex items-center gap-1.5 bg-violet-50 border border-violet-200 rounded-full px-3 py-1">
+            <div className="w-1.5 h-1.5 rounded-full bg-green-400" />
+            <span className="text-xs font-semibold text-violet-800">
+              {crcBalance !== null ? `${Math.floor(crcBalance).toLocaleString('es-AR')} ${techMode ? 'CRC' : 'créd.'}` : '...'}
+            </span>
+          </div>
+        )}
       </div>
 
       <div className="flex-1 p-4 space-y-5 overflow-y-auto">

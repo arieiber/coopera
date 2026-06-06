@@ -73,6 +73,14 @@ body { margin: 0; font-family: system-ui, sans-serif; }
 
 /* Orange accents in dark mode */
 .dark .bg-violet-50  { background-color: #2a1f00 !important; }
+
+/* Tailwind v4 gradient stops use CSS custom props — override separately */
+.dark .from-violet-50 { --tw-gradient-from: #2a1f00 !important; }
+.dark .to-amber-50    { --tw-gradient-to:   #1c1400 !important; }
+.dark .from-amber-50  { --tw-gradient-from: #1c1400 !important; }
+
+/* bg-white/70 opacity variant in dark mode */
+.dark [class*="bg-white\/"] { background-color: color-mix(in srgb, var(--bg-card) 85%, transparent) !important; }
 .dark .bg-violet-100 { background-color: #3a2b00 !important; }
 .dark .text-violet-800,
 .dark .text-violet-700 { color: #f9b43a !important; }
