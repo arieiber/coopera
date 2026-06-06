@@ -13,6 +13,7 @@ import { SalaScreen } from './screens/SalaScreen'
 import { MembersScreen } from './screens/MembersScreen'
 import { OnboardingScreen } from './screens/OnboardingScreen'
 import { SettingsScreen } from './screens/SettingsScreen'
+import { AdminScreen } from './screens/AdminScreen'
 
 type View = 'home' | 'join' | 'pending' | 'sala' | 'members' | 'create-sala' | 'settings'
 
@@ -20,8 +21,16 @@ const ONBOARDING_KEY = 'coopera_onboarded'
 function hasOnboarded() { return !!localStorage.getItem(ONBOARDING_KEY) }
 function markOnboarded() { localStorage.setItem(ONBOARDING_KEY, '1') }
 
+const MASTER_KEY = import.meta.env.VITE_MASTER_KEY
+
 export default function App() {
-  const hasInvite = new URLSearchParams(window.location.search).has('invite')
+  const params = new URLSearchParams(window.location.search)
+  const hasInvite = params.has('invite')
+
+  // Master admin panel — ?admin=MASTERKEY
+  if (MASTER_KEY && params.get('admin') === MASTER_KEY) {
+    return <AdminScreen onExit={() => { window.history.replaceState({}, '', '/'); window.location.reload() }} />
+  }
   const [onboarded, setOnboarded] = useState(() => hasOnboarded() || !!getSession() || hasInvite)
   const [session, setSession] = useState<Session | null>(getSession)
   const [isCreator, setIsCreator] = useState(false)

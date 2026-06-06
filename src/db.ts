@@ -204,3 +204,33 @@ export async function addContribution(vacaId: string, memberEmail: string, displ
 
   return actual
 }
+
+// ── Admin ─────────────────────────────────────────────────────────────────────
+
+export async function adminGetAllSchools(): Promise<School[]> {
+  const { data } = await supabase.from('schools').select('*').order('name')
+  return data ?? []
+}
+
+export async function adminGetAllSalas(): Promise<(Sala & { school_name?: string })[]> {
+  const { data } = await supabase
+    .from('salas')
+    .select('*, schools(name)')
+    .order('name')
+  return (data ?? []).map((s: any) => ({ ...s, school_name: s.schools?.name }))
+}
+
+export async function adminDeleteMember(memberId: string): Promise<void> {
+  const { error } = await supabase.from('members').delete().eq('id', memberId)
+  if (error) throw new Error(error.message)
+}
+
+export async function adminDeleteSala(salaId: string): Promise<void> {
+  const { error } = await supabase.from('salas').delete().eq('id', salaId)
+  if (error) throw new Error(error.message)
+}
+
+export async function adminDeleteSchool(schoolId: string): Promise<void> {
+  const { error } = await supabase.from('schools').delete().eq('id', schoolId)
+  if (error) throw new Error(error.message)
+}
