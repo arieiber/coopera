@@ -38,15 +38,28 @@ export default function handler(req) {
   <meta charset="UTF-8" />
   <title>${title}</title>
   <meta name="description" content="${description}" />
+  <meta name="author" content="Coopera" />
+
+  <!-- Open Graph -->
   <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Coopera" />
+  <meta property="og:locale" content="es_AR" />
   <meta property="og:title" content="${title}" />
   <meta property="og:description" content="${description}" />
   <meta property="og:image" content="${ogImage}" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="${title}" />
   <meta property="og:url" content="${appUrl}" />
+
+  <!-- Twitter / X -->
   <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@coopera_app" />
+  <meta name="twitter:title" content="${title}" />
+  <meta name="twitter:description" content="${description}" />
   <meta name="twitter:image" content="${ogImage}" />
+  <meta name="twitter:image:alt" content="${title}" />
+
   <meta http-equiv="refresh" content="0;url=${appUrl}" />
 </head>
 <body>
