@@ -1,101 +1,101 @@
 # Coopera 🐄
 
-**Colectas escolares sin drama, sin grupos de WhatsApp, sin plata en efectivo.**
+**School group fundraising — without the WhatsApp chaos, manual receipts, or cash handling.**
 
-> Proyecto presentado en el **ETHBucharest 2025 Hackathon** — track de Circles Protocol  
-> 🌐 [coopera-crc.vercel.app](https://coopera-crc.vercel.app) · [Abrir en Circles Playground](https://circles.gnosis.io/playground?url=https%3A%2F%2Fcoopera-crc.vercel.app%2F)
-
----
-
-## El contexto: ¿qué es Circles?
-
-[Circles](https://aboutcircles.com) es un protocolo de dinero mutual construido sobre Gnosis Chain. Cada persona registrada emite su propio token personal (CRC) y establece relaciones de confianza con otras personas. Los tokens circulan a través de esa red de confianza — lo que crea un sistema de crédito descentralizado donde el valor emerge de las relaciones, no de una autoridad central.
-
-Los CRC se acumulan automáticamente con el tiempo (~1 CRC/hora por persona registrada) y se pueden transferir entre wallets usando el grafo de confianza (pathfinding). No son especulativos: están diseñados para circular dentro de comunidades reales.
-
-🔗 [Leer más sobre Circles](https://aboutcircles.com) · [Documentación del protocolo](https://docs.aboutcircles.com)
+> Built for the **Circles/Garage · 6-week Builder Program** — June 2026  
+> 🌐 [coopera-crc.vercel.app](https://coopera-crc.vercel.app) · [Open in Circles Playground](https://circles.gnosis.io/playground?url=https%3A%2F%2Fcoopera-crc.vercel.app%2F)
 
 ---
 
-## El problema
+## What is Circles?
 
-En Argentina, los grupos de padres de escuelas primarias y jardines organizan colectas frecuentes para comprar materiales, financiar excursiones o cubrir gastos de la sala. El proceso actual es caótico:
+[Circles](https://aboutcircles.com) is a mutual credit protocol built on Gnosis Chain. Every registered person issues their own personal token (CRC) and establishes trust relationships with others. Tokens flow through that trust graph — creating a decentralized credit system where value emerges from relationships, not from a central authority.
 
-- La "madrina" (quien coordina) arma un grupo de WhatsApp y pide transferencias
-- Recibe comprobantes por chat, los chequea manualmente uno por uno
-- Persigue a quienes no pagaron con mensajes incómodos
-- Maneja plata de otros sin trazabilidad ni transparencia
-- Si surgen dudas sobre cómo se usaron los fondos, no hay registro claro
+CRC accumulates automatically over time (~1 CRC/hour per registered person) and can be transferred between wallets using pathfinding through the trust network. These tokens are not speculative — they are designed to circulate within real communities.
 
-El resultado: desgaste para quien coordina, confusión para el grupo, y muchas veces la misma persona cargando con todo.
+🔗 [Learn more about Circles](https://aboutcircles.com) · [Protocol documentation](https://docs.aboutcircles.com)
 
 ---
 
-## La solución: Coopera
+## The Problem
 
-Coopera es una mini-app para salas escolares que reemplaza el caos del WhatsApp con un fondo digital cooperativo. Funciona como una caja común digital donde:
+In Argentina (and across Latin America), school parent groups organize frequent fundraisers to buy classroom supplies, fund field trips, or cover shared expenses. The current process is painful:
 
-- **La madrina** crea la sala, invita a las familias y publica colectas ("vacas") con una meta y fecha límite
-- **Las familias** ven cuánto falta, cuánto puso cada uno, y contribuyen con un toque — sin transferencias manuales ni comprobantes
-- **Los créditos (CRC)** se acumulan solos con el tiempo: no hay que comprarlos ni cargarlos, simplemente se tienen por participar en la red
-- **La transparencia** es automática: todos ven el progreso en tiempo real
+- The coordinator ("madrina") creates a WhatsApp group and asks for bank transfers
+- She receives payment screenshots one by one and manually checks each one
+- She chases non-payers with awkward messages
+- She handles other people's money with no traceability or transparency
+- If questions arise about how funds were spent, there's no clear record
 
-### Primitivas de Circles que usa Coopera
+The result: burnout for whoever coordinates, confusion for the group, and one person carrying all the load.
 
-| Feature | Primitiva Circles |
+---
+
+## The Solution: Coopera
+
+Coopera is a mini-app for school parent groups that replaces the WhatsApp chaos with a cooperative digital fund. It works as a shared digital wallet where:
+
+- **The madrina** (coordinator) creates the room, invites families, and publishes fundraisers ("vacas") with a goal and deadline
+- **Families** see how much is left, who contributed what, and chip in with one tap — no manual transfers, no screenshots
+- **Credits (CRC)** accumulate on their own over time: no need to buy or load them — members simply earn them by participating in the Circles network
+- **Transparency is automatic**: everyone sees real-time progress
+
+### Circles Primitives Used
+
+| Feature | Circles Primitive |
 |---|---|
-| Balance de créditos en tiempo real | `circles_getTokenBalances` vía Circles RPC |
-| Contribuir a una colecta | `avatar.transfer.advanced()` — pathfinding por grafo de confianza |
-| Aprobar un miembro → trust on-chain | `avatar.trust.add()` |
-| Identidad sin email | Wallet address + `avatar.profile.get()` |
+| Live credit balance in app header | `circles_getTokenBalances` via Circles RPC |
+| Contributing to a fundraiser | `avatar.transfer.advanced()` — pathfinding through trust graph |
+| Approving a member → on-chain trust | `avatar.trust.add()` |
+| Identity without email | Wallet address + `avatar.profile.get()` |
 
 ---
 
-## Cómo probar
+## How to Try It
 
-La app corre como **mini-app dentro del ecosistema de Circles**. Para probar el flujo completo con transacciones reales:
+The app runs as a **Circles mini-app**. To test the full flow with real on-chain transactions:
 
-1. Abrí [Circles Playground](https://circles.gnosis.io/playground?url=https%3A%2F%2Fcoopera-crc.vercel.app%2F) — tiene una wallet de Circles inyectada
-2. O instalá la app de Circles en tu celular y abrí `coopera-crc.vercel.app` desde ahí
+1. Open [Circles Playground](https://circles.gnosis.io/playground?url=https%3A%2F%2Fcoopera-crc.vercel.app%2F) — wallet is injected automatically
+2. Or open `coopera-crc.vercel.app` from within the Circles mobile app
 
-**Modo demostración:** la app también funciona en cualquier browser sin wallet. Las contribuciones se guardan con `is_demo = true` — útil para explorar el flujo sin cuenta de Circles.
+**Demo mode:** the app also works in any regular browser without a wallet. Contributions are saved with `is_demo = true` — useful for exploring the flow without a Circles account.
 
 ---
 
-## Stack técnico
+## Tech Stack
 
-| Capa | Tecnología |
+| Layer | Technology |
 |---|---|
 | Frontend | React + TypeScript + Vite + Tailwind CSS v4 |
 | Backend | Supabase (PostgreSQL + RLS) |
-| Protocolo | Circles v2 en Gnosis Chain (chainId 100) |
+| Protocol | Circles v2 on Gnosis Chain (chainId 100) |
 | Mini-app SDK | `@aboutcircles/miniapp-sdk` + `@aboutcircles/sdk` |
-| Wallet alternativa | Privy (login con Google/email para usuarios sin Circles) |
+| Fallback wallet | Privy (Google/email login for users without Circles) |
 | ENS | JustAName + ensdata.net |
 | Deploy | Vercel |
 
 ---
 
-## Estructura del proyecto
+## Project Structure
 
 ```
 src/
-  circles.ts          — integración con Circles SDK (balance, trust, transfer)
-  db.ts               — queries a Supabase
+  circles.ts          — Circles SDK integration (balance, trust, transfer)
+  db.ts               — Supabase queries
   screens/
-    HomeScreen         — buscar escuela, unirse por invitación
-    JoinScreen         — ingreso con wallet Circles o email
-    SalaScreen         — lista de vacas, contribuir, balance CRC
-    MembersScreen      — aprobar miembros, configurar cuenta de cobro
-    OnboardingScreen   — 3 pasos de bienvenida
-    SettingsScreen     — modo oscuro, modo técnico (CRC vs créditos)
+    HomeScreen         — school search, join by invite link
+    JoinScreen         — entry with Circles wallet or email
+    SalaScreen         — fundraiser list, contribute, CRC balance
+    MembersScreen      — approve members, configure payout address
+    OnboardingScreen   — 3-step first-time welcome
+    SettingsScreen     — dark mode, tech mode (CRC vs créditos)
 ```
 
 ---
 
-## Variables de entorno
+## Environment Variables
 
-Crear un archivo `.env` en la raíz (no commitear):
+Create a `.env` file at the root (never commit):
 
 ```
 VITE_SUPABASE_URL=
@@ -107,24 +107,24 @@ VITE_ENS_DOMAIN=
 
 ---
 
-## Desarrollado por
+## Known Limitations & Roadmap
 
-**Ariel Eiberman** — ETHBucharest 2025  
-[github.com/arieiber/coopera-crc](https://github.com/arieiber/coopera-crc)
+### Coordinator self-contribution
+The madrina is often also a parent and wants to contribute to fundraisers she created. When her own wallet is the sala's payout address, Circles cannot transfer tokens from an address to itself.
+
+**Current behavior:** if `from === payout_address`, the contribution is recorded without an on-chain tx. The CRC is already in her wallet — no movement needed.
+
+**Long-term vision — Sala Treasury:** each sala should have its own independent address (a Circles Group or Gnosis Safe) where collective funds accumulate. The madrina would be the admin with withdrawal rights. This cleanly separates "group funds" from "the coordinator's personal wallet" — the correct architecture for any collective treasury.
+
+### Other planned improvements
+- [ ] Circles Group as sala treasury (collective funds separate from individual wallets)
+- [ ] WhatsApp notifications when a member is approved or a fundraiser completes
+- [ ] Personal contribution history per user
+- [ ] CRC → USDC.e → bank account off-ramp integration
 
 ---
 
-## Limitaciones conocidas y roadmap
+## Built by
 
-### Auto-contribución de la madrina
-La madrina suele ser también madre/padre y quiere contribuir a las vacas que ella misma creó. Cuando su propia wallet es la cuenta de cobro de la sala, Circles no puede transferir tokens de una dirección a sí misma.
-
-**Solución actual:** si `from === payout_address`, la contribución se registra sin tx on-chain. Los CRC ya están en la wallet de la madrina.
-
-**Visión a largo plazo — Arcas de la sala:** cada sala debería tener su propio address independiente (tipo Circles Group o Gnosis Safe) donde se acumulan los fondos colectivos. La madrina sería la admin con derecho a retirar. Esto separa "los fondos del grupo" de "la wallet personal de quien coordina" — que es la separación correcta para cualquier tesorería colectiva.
-
-### Otras mejoras planeadas
-- [ ] Circles Group como treasury de sala (fondos colectivos separados de wallets individuales)
-- [ ] Notificaciones vía WhatsApp cuando se aprueba un miembro o se completa una vaca
-- [ ] Historial de contribuciones personales por usuario
-- [ ] Integración con exchange para convertir CRC → USDC.e → cuenta bancaria
+**Ariel Eiberman** — Circles/Garage Builder Program, June 2026  
+[github.com/arieiber/coopera-crc](https://github.com/arieiber/coopera-crc)
