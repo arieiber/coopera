@@ -60,7 +60,7 @@ export function JoinScreen({ sala, schoolName, isCreator = false, circlesWallet,
       displayName: member.display_name ?? nameUsed,
       salaId: sala.id,
       role: member.role,
-      status: member.status,
+      status: member.status as 'pending' | 'approved',
     }
     // If joining as a regular member with Circles wallet, offer trust toward madrina
     if (isMiniappMode() && circlesWallet && member.role !== 'madrina') {
