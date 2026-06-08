@@ -339,9 +339,17 @@ export function MembersScreen({ sala, buildInviteUrl, madrinalWallet, crcBalance
                     <MemberName member={m} size="sm" />
                     <p className="text-xs text-gray-400 mt-0.5">{m.role === 'madrina' ? '⭐ Madrina' : 'Padre/Madre'}</p>
                   </div>
-                  {m.wallet_address && (
+                  {m.wallet_address && m.role !== 'madrina' && isMiniappMode() && madrinalWallet ? (
+                    <button
+                      onClick={() => setTrustPending(m.id)}
+                      className="ml-auto text-xs text-violet-600 border border-violet-200 px-2 py-1 rounded-lg hover:bg-violet-50 shrink-0"
+                      title="Conectar para que pueda enviar créditos"
+                    >
+                      🤝 Conectar
+                    </button>
+                  ) : m.wallet_address ? (
                     <span className="ml-auto text-xs text-green-600 shrink-0">✓ {t('cuenta digital')}</span>
-                  )}
+                  ) : null}
                 </div>
               ))}
             </div>

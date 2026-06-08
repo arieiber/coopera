@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { requestJoin, getMember, getMembers } from '../db'
+import { requestJoin, getMember, getMembers, getMadrinaWallet } from '../db'
+import { trustMember, isMiniappMode } from '../circles'
 import type { Sala } from '../supabase'
 import type { Session } from '../session'
 
@@ -22,6 +23,8 @@ export function JoinScreen({ sala, schoolName, isCreator = false, circlesWallet,
   const [isReturning, setIsReturning] = useState(false)
   const [salaHasMadrina, setSalaHasMadrina] = useState<boolean | null>(null) // null = loading
   const [wantsMadrina, setWantsMadrina] = useState(false)
+  // After joining: offer to create trust toward the madrina
+  const [trustOffer, setTrustOffer] = useState<{ madrinaWallet: string; madrinaName: string; pendingSession: Session } | null>(null)
 
   // In Circles Garage: wallet + name are already known — skip the form
   const circlesMode = !!circlesWallet
@@ -51,6 +54,28 @@ export function JoinScreen({ sala, schoolName, isCreator = false, circlesWallet,
 
   const effectivelyMadrina = isCreator || wantsMadrina
 
+  async function afterJoin(member: Awaited<ReturnType<typeof requestJoin>>, nameUsed: string) {
+    const sess: Session = {
+      email: member.email,
+      displayName: member.display_name ?? nameUsed,
+      salaId: sala.id,
+      role: member.role,
+      status: member.status,
+    }
+    // If joining as a regular member with Circles wallet, offer trust toward madrina
+    if (isMiniappMode() && circlesWallet && member.role !== 'madrina') {
+      const madrinaWallet = await getMadrinaWallet(sala.id)
+      if (madrinaWallet && madrinaWallet.toLowerCase() !== circlesWallet.toLowerCase()) {
+        // Find madrina name for the UI
+        const allMembers = await getMembers(sala.id)
+        const madrina = allMembers.find(m => m.role === 'madrina')
+        setTrustOffer({ madrinaWallet, madrinaName: madrina?.display_name ?? 'la madrina', pendingSession: sess })
+        return
+      }
+    }
+    onJoined(sess)
+  }
+
   async function handleJoinCircles() {
     if (!circlesEmail || !displayName) return
     setLoading(true)
@@ -62,13 +87,7 @@ export function JoinScreen({ sala, schoolName, isCreator = false, circlesWallet,
         setLoading(false)
         return
       }
-      onJoined({
-        email: member.email,
-        displayName: member.display_name ?? displayName,
-        salaId: sala.id,
-        role: member.role,
-        status: member.status,
-      })
+      await afterJoin(member, displayName)
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Error al unirte')
     } finally {
@@ -98,13 +117,7 @@ export function JoinScreen({ sala, schoolName, isCreator = false, circlesWallet,
         setLoading(false)
         return
       }
-      onJoined({
-        email: member.email,
-        displayName: member.display_name ?? displayName,
-        salaId: sala.id,
-        role: member.role,
-        status: member.status,
-      })
+      await afterJoin(member, displayName)
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Error al unirte')
     } finally {
@@ -287,6 +300,46 @@ export function JoinScreen({ sala, schoolName, isCreator = false, circlesWallet,
             : 'Pedir acceso'}
         </button>
       </div>
+
+      {/* Trust offer modal — shown after joining when madrina has a wallet */}
+      {trustOffer && (
+        <div className="fixed inset-0 bg-black/60 flex items-end justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl w-full max-w-md p-5 space-y-4">
+            <div className="flex items-start gap-3">
+              <span className="text-2xl">🤝</span>
+              <div>
+                <p className="font-semibold text-gray-900">Conectar con la sala</p>
+                <p className="text-sm text-gray-500 mt-1">
+                  Para poder enviar créditos a <span className="font-medium text-gray-700">{trustOffer.madrinaName}</span>, tu cuenta de Circles necesita conectarse con la de ella.
+                </p>
+              </div>
+            </div>
+            <div className="bg-violet-50 border border-violet-200 rounded-xl px-3 py-2.5 text-xs text-violet-800">
+              Tu billetera va a pedir confirmación. <strong>No mueve fondos</strong> — es solo una conexión que permite futuros envíos.
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => { setTrustOffer(null); onJoined(trustOffer.pendingSession) }}
+                className="flex-1 border border-gray-200 text-gray-500 py-2.5 rounded-xl text-sm"
+              >
+                Ahora no
+              </button>
+              <button
+                onClick={async () => {
+                  if (circlesWallet) {
+                    await trustMember(circlesWallet, trustOffer.madrinaWallet).catch(console.error)
+                  }
+                  setTrustOffer(null)
+                  onJoined(trustOffer.pendingSession)
+                }}
+                className="flex-1 bg-violet-600 text-white py-2.5 rounded-xl text-sm font-semibold"
+              >
+                Conectar →
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

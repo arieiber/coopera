@@ -71,6 +71,18 @@ export async function getMembers(salaId: string): Promise<Member[]> {
   return data ?? []
 }
 
+/** Returns the madrina's wallet address for a sala, or null if not set */
+export async function getMadrinaWallet(salaId: string): Promise<string | null> {
+  const { data } = await supabase
+    .from('members')
+    .select('wallet_address')
+    .eq('sala_id', salaId)
+    .eq('role', 'madrina')
+    .eq('status', 'approved')
+    .single()
+  return data?.wallet_address ?? null
+}
+
 export async function getMember(salaId: string, email: string): Promise<Member | null> {
   const { data } = await supabase
     .from('members')
